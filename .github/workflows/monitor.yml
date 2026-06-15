@@ -1,39 +1,25 @@
-name: Bastard Quest Monitor
+steps:
+  - uses: actions/checkout@v4
 
-on:
-  schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+  - uses: actions/setup-python@v5
+    with:
+      python-version: "3.11"
 
-jobs:
-  monitor:
-    runs-on: ubuntu-latest
+  - run: pip install requests playwright
 
-    permissions:
-      contents: write
+  - run: playwright install chromium
 
-    steps:
-      - uses: actions/checkout@v4
+  - run: python monitor.py
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+  - name: Save quest cache
+    run: |
+      git config user.name github-actions
+      git config user.email github-actions@github.com
 
-      - run: pip install requests playwright
+      git add known_quests.json
 
-      - run: playwright install chromium
-
-      - run: python monitor.py
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-
-      - name: Save quest cache
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
-          git add known_quests.json
-
-          git diff --staged --quiet || git commit -m "update quest cache"
-          git push
+      git diff --staged --quiet || git commit -m "update quest cache"
+      git push

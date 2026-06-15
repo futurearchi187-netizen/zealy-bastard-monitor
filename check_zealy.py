@@ -1,11 +1,12 @@
-import requests
+from playwright.sync_api import sync_playwright
 
-url = "https://zealy.io/cw/bastard/questboard"
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
 
-r = requests.get(
-    url,
-    headers={"User-Agent": "Mozilla/5.0"}
-)
+    page.goto("https://zealy.io/cw/bastard/questboard", wait_until="networkidle")
 
-print("Status:", r.status_code)
-print(r.text[:5000])
+    print(page.title())
+    print(page.locator("body").inner_text()[:5000])
+
+    browser.close()

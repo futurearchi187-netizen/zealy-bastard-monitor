@@ -14,6 +14,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      - run: pip install playwright
+
+      - run: playwright install chromium
 
       - run: python check_zealy.py
